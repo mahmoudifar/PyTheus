@@ -1326,3 +1326,66 @@ def plot_symmetric_Dicke_state (n,
     experiment = fig.savefig(filename + ".pdf", bbox_inches='tight') 
     
     return experiment
+
+#Graphs for generating the states |w_n>^2 without ancillas. 
+#Graph generalization in Fig. 17 to n-particles (https://arxiv.org/abs/2210.09980)
+# n number of particles (odd numbers)
+
+def halo_result_wnwn(n,
+                     edgescolor = ["#191825", "#865DFF"],
+                     minthickness = 10,
+                     maxthickness = 12,
+                     thickness = 20, 
+                     fontsize = 12,
+                     rv = 0.1,
+                     showPM = False):
+    
+    if n < 3  or  isinstance(n, float):
+        raise ValueError(f"introduce valid number.")    
+    
+    elif n % 2 == 0:
+        raise ValueError(f"n must be an odd number, but got {n}.")
+   
+    else : 
+        num_nodes = int(2*n)
+        
+    nodes = list(range(num_nodes))
+    n1, n2 = 0, n
+    
+    edge1 = [(nodes[i],  nodes[i + 1], int( nodes[i + 1] > nodes[i]),\
+              int( nodes[i + 1] <= nodes[i]))for i in range(len( nodes) - 1) if i == n1 or i == n2]
+    
+    edge2 = [(e[0], e[1], 0, 1) for e in edge1]
+    
+    epr_edge = sorted(edge1 + edge2)
+    
+    node1 = nodes[1:n]
+    node2 = nodes[n+1:]
+    excited_edges = [(node1[0], x, 0, 1) for x in node1[1:]]+ [(node2[0], x, 0, 1) for x in node2[1:]]
+    
+    node3 = nodes[:n]
+    node4 = nodes[n:]
+    del node3[1]
+    del node4[1]
+    
+    node5 = list(chain(*zip(sorted(node3, reverse=True), node4)))
+    edge3 =  list(zip(node5, node5[1:] + [node5[0]]))
+   
+    not_excited_edges = [x + (0, 0) for x in edge3]
+    
+    wn_wn = epr_edge + excited_edges + not_excited_edges
+    plot_graph =  GraphPlotter(wn_wn,
+                               edgescolor = edgescolor,
+                               minthickness =  minthickness,
+                               maxthickness =  maxthickness,
+                               thickness = thickness,
+                               fontsize =  fontsize,
+                               rv = rv,
+                              showPM = showPM )
+    plot_graph.graphPlot()
+    
+    return plot_graph.savegraph(f'w{n}w{n}')
+    
+    
+    
+    
