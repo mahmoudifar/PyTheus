@@ -1368,7 +1368,7 @@ def halo_result_wnwn(n,
     del node3[1]
     del node4[1]
     
-    node5 = list(chain(*zip(sorted(node3, reverse=True), node4)))
+    node5 = list(itertools.chain(*zip(sorted(node3, reverse=True), node4)))
     edge3 =  list(zip(node5, node5[1:] + [node5[0]]))
    
     not_excited_edges = [x + (0, 0) for x in edge3]
