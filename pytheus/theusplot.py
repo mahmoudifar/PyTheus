@@ -1327,7 +1327,7 @@ def plot_symmetric_Dicke_state (n,
     
     return experiment
 
-#Graphs for generating the states |w_n>^2 without ancillas. 
+#Graphs for generating the states |w_n>^2 without ancillas, and w_n (odd particle) with ancillas
 #Graph generalization in Fig. 17 to n-particles (https://arxiv.org/abs/2210.09980)
 # n number of particles (odd numbers)
 
@@ -1335,10 +1335,11 @@ def halo_result_wnwn(n,
                      edgescolor = ["#191825", "#865DFF"],
                      minthickness = 10,
                      maxthickness = 12,
-                     thickness = 20, 
-                     fontsize = 12,
+                     thickness = 18, 
+                     fontsize = 16,
                      rv = 0.1,
-                     showPM = False):
+                     showPM = False, 
+                     wn = False):
     
     if n < 3  or  isinstance(n, float):
         raise ValueError(f"introduce valid number.")    
@@ -1374,18 +1375,33 @@ def halo_result_wnwn(n,
     not_excited_edges = [x + (0, 0) for x in edge3]
     
     wn_wn = epr_edge + excited_edges + not_excited_edges
-    plot_graph =  GraphPlotter(wn_wn,
-                               edgescolor = edgescolor,
-                               minthickness =  minthickness,
-                               maxthickness =  maxthickness,
-                               thickness = thickness,
-                               fontsize =  fontsize,
-                               rv = rv,
-                              showPM = showPM )
+    
+    if not wn:
+        plot_graph =  GraphPlotter(wn_wn,
+                                   edgescolor = edgescolor,
+                                   minthickness =  minthickness,
+                                   maxthickness =  maxthickness,
+                                   thickness = thickness,
+                                   fontsize =  fontsize,
+                                   rv = rv,
+                                   showPM = showPM )
+        filename = f'w{n}w{n}'
+    else:
+        w = Graph(wn_wn)
+        w.removeNode(n)
+        w.removeNode(n)
+        ancilla = list(range(w.num_nodes))[n:]
+        plot_graph =  GraphPlotter(w.graph,
+                                   edgescolor = edgescolor,
+                                   minthickness =  minthickness,
+                                   maxthickness =  maxthickness,
+                                   thickness = thickness,
+                                   fontsize =  fontsize,
+                                   rv = rv,
+                                   showPM = showPM, 
+                                   ancilla = ancilla)
+        filename = f'w{n}'
+        
     plot_graph.graphPlot()
     
-    return plot_graph.savegraph(f'w{n}w{n}')
-    
-    
-    
-    
+    return plot_graph.savegraph(filename = filename)
