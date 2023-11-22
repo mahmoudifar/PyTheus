@@ -411,6 +411,10 @@ class GraphPlotter(Graph):
                 for row in range(self.rows):
                     for col in range(self.cols):
                         if  PM_counter < self.numPM:
+                             if self.ax.ndim == 1:
+                                 self.ax = self.ax.reshape((self.rows, self.cols))
+                            if self.ax.ndim == 1:
+                               self.ax = self.ax.reshape((self.rows, self.cols))
                             self.ax[row, col].axis('off')
                             #self.ax[row, col].set_title(f"PM {PM_counter+ 1}", fontsize = self.fontsize)
                             if self.inherited:
