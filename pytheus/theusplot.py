@@ -455,7 +455,7 @@ class GraphPlotter(Graph):
         self.fig, self.ax = plt.subplots(figsize=(self.figsize,)*2,
                                              nrows = rows, ncols = cols)  
             
-        state_graph = [sorted(list(set(grouper(4,flatten(catalog))))) for catalog in state_catalog]
+        state_graph = [sorted(list(set(grouper(4,flatten(state))))) for state in state_catalog]
         updated_state_graph = []
         for s in state_graph:
             updated_state_graph.append(updated_edgeBleach(s, self.edgescolor, 
