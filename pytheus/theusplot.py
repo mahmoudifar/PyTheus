@@ -437,6 +437,60 @@ class GraphPlotter(Graph):
                 self.ax.set_aspect(1)
                 self.ax.axis('off') 
                 
+    def plot_state_catalog (self):
+        state_catalog = list(self.state_catalog.values())
+        SC_counter = 0
+        lmin = self.sidelength + self.sidelength/5
+        if  len(state_catalog)> 1:
+            rows = round(np.sqrt( len(state_catalog)))
+            cols = rows if rows**2 >=  len(state_catalog) else rows+1
+            
+        elif len(state_catalog) == 1:
+            rows = 1
+            cols = 1
+       
+        else:
+            raise ValueError(invalidInput("It appears that there is"\
+                                               " no state catalog in the graph"))
+        self.fig, self.ax = plt.subplots(figsize=(self.figsize,)*2,
+                                             nrows = rows, ncols = cols)  
+            
+        state_graph = [sorted(list(set(grouper(4,flatten(catalog))))) for catalog in state_catalog]
+        updated_state_graph = []
+        for s in state_graph:
+            updated_state_graph.append(updated_edgeBleach(s, self.edgescolor, 
+                                                          self.coordofvertices))      
+        weight = []  
+        for item in state_graph:
+            w = [[self.graph[key]] for key in item]
+            weight.append(w)
+       
+        if len(state_catalog) > 1:
+                for row in range(rows):
+                    for col in range(cols):
+                        if  SC_counter < len(state_catalog):
+                            if self.ax.ndim == 1:
+                                 self.ax = self.ax.reshape((rows, cols))
+                            self.ax[row, col].axis('off')
+                            self.plot_vertices(self.ax[row, col], [self.fillvertexcolor]*self.num_nodes)
+                            self.plot_edges(self.ax[row,col], updated_state_graph [SC_counter], weight[SC_counter])
+                            self.ax[row,col].set_xlim(xmin = -lmin, xmax = lmin)
+                            self.ax[row,col].set_ylim(ymin = -lmin, ymax = lmin)
+                            self.ax[row,col].set_aspect(1)
+                            SC_counter += 1
+                for num in range(SC_counter, cols*rows):
+                    self.fig.delaxes(self.ax.flatten()[num])
+                    
+        elif len(state_catalog) == 1:
+            self.plot_vertices(self.ax, [self.fillvertexcolor]*self.num_nodes)
+            self.plot_edges(self.ax,  updated_state_graph[0], weight[0])
+            self.ax.set_aspect(1)
+            self.ax.axis('off')
+            
+        else:
+            raise ValueError(invalidInput("It appears that there is"\
+                                               " no state catalog in the graph"))     
+            
     def showgraph(self):
         plt.axis('equal')
         plt.axis('off')
