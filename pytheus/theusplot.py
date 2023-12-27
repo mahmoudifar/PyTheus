@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle, Wedge, Circle, Ellipse
+from matplotlib.patches import Rectangle, Wedge, Circle, Ellipse, RegularPolygon
 import matplotlib
 matplotlib.rcParams['figure.dpi']=300
 import  string, itertools
@@ -161,6 +161,7 @@ class GraphPlotter(Graph):
                  edgescolor = Colors,
                  showPM = False,
                  inherited = False,
+                 number_resolving = False,
                  figsize = 10,
                  fontsize = 12,
                  textcolor = 'black',
@@ -170,6 +171,7 @@ class GraphPlotter(Graph):
         self.edgescolor = edgescolor
         self.showPM = showPM
         self.inherited  =  inherited 
+        self.number_resolving  = number_resolving 
         self.figsize = figsize
         self.fontsize = fontsize
         self.textcolor = textcolor
@@ -351,13 +353,23 @@ class GraphPlotter(Graph):
                 else:
                     x = vertex[0] - self.circleradius
                     y = vertex[1] - self.circleradius
-                    ax.add_patch(Rectangle((x, y), 
-                                            2*self.circleradius, 
-                                            2*self.circleradius,
-                                            facecolor = color[i], 
-                                            edgecolor = self.outvertexcolor, 
-                                            linewidth = self.vlinewidth,
-                                            zorder = 3))                                       
+                    if not self.number_resolving:
+                        ax.add_patch(Rectangle((x, y), 
+                                                2*self.circleradius, 
+                                                2*self.circleradius,
+                                                facecolor = color[i], 
+                                                edgecolor = self.outvertexcolor, 
+                                                linewidth = self.vlinewidth,
+                                                zorder = 3)) 
+                    else:
+                        ax.add_patch(RegularPolygon(vertex,
+                                                    6, 
+                                                    radius = self.circleradius,
+                                                    edgecolor = self.outvertexcolor,
+                                                    linewidth = self.vlinewidth,
+                                                    facecolor = color[i],
+                                                    zorder = 3))      
+                        
             elif i in self.single_emitters or i in self.in_nodes:
                 self.plot_triangle(ax, vertex, color[i])
                         
