@@ -1475,3 +1475,93 @@ def halo_result_wnwn(n,
     plot_graph.graphPlot()
     
     return plot_graph.savegraph(filename = filename)
+
+def generalization_NooN3n(num_modes,
+                          edgescolor = ["navy"],
+                          minthickness = 10,
+                          maxthickness = 12,
+                          thickness = 18, 
+                          fontsize = 20,
+                          rv = 0.1):
+    """ The generalization of the NooN state in Figure 36 without any optimization process.
+    (https://quantum-journal.org/papers/q-2023-12-12-1204).
+    The number of ancillary detectors correlates with the mode quantum state
+    in the graphs (ancilla detectors = 2*num_modes - 3). """
+
+        
+    if num_modes < 2  or  isinstance(num_modes, float):
+        raise ValueError(invalidInput('num_modes')) 
+        
+    else:
+        num_ancilla = 2*num_modes-3
+        num_nodes = num_modes + num_ancilla
+        nodes = list(range(num_nodes))
+        modes = nodes[:num_modes]
+        ancilla = nodes[num_modes:]
+        
+        if len(ancilla)>1:
+            
+            node1 = [ancilla[-3]] + modes[1:3]
+        else :
+            
+            node1 = [ancilla[0]] + modes[0:2]
+        
+
+        ancilla_connection =[(node[0], node[1], 0, 0) for node in  generate_N_grams(ancilla, ngram = 2)]
+        
+        self_loops = [(i, i, 0, 0) for i in modes]
+        
+       
+        cycle_connection = [(i, j, 0, 0) for i, j in zip(node1, list(node1[1:]) + [node1[0]])]
+        cycle_connection = [(e[1], e[0], *e[2:]) if e[0] > e[1] else e for e in  cycle_connection]
+        
+        
+        ancilla_mode_nodes = list(zip(sorted(modes[3:]+[modes[0]], reverse=True), 
+                                      [(ancilla[i], ancilla[i+1],ancilla [i+2])
+                                       for i in range(0, len(ancilla)-2, 2)]))
+        
+        
+        ancilla_mode_connection = [(mode, ancilla, 0, 0) for mode, ancilla_tuple in 
+                                   ancilla_mode_nodes for ancilla in ancilla_tuple]
+        
+        NooN = self_loops + ancilla_connection + cycle_connection + ancilla_mode_connection
+        
+        w_self_loops = [1]*len(self_loops)
+        w_ancilla_connection = [1]*len(ancilla_connection)
+        w_cycle_connection = [1, -1, 1]
+        w_amc = [1]*len(ancilla_mode_connection)
+        w_amc =  [w_amc[i:i+3] for i in range(0, len(w_amc), 3)]
+        
+        for index, sublist in enumerate(w_amc):
+            if 0 < index < len(w_amc) - 1:
+                sublist[0] = -1 * sublist[0]
+            elif index == 0:
+                
+                if num_modes == 3:
+                    sublist[2] = -1 * sublist[2]
+                else :
+                    sublist[0] = -1 * sublist[0]
+            else:
+                sublist[2] = -1 * sublist[2]
+
+        w_ancilla_mode_connection = flatten(w_amc)
+        
+        weights = w_self_loops + w_ancilla_connection + w_cycle_connection + w_ancilla_mode_connection
+        
+        graph = Graph({NooN[i]: weights[i] for i in range(len(NooN))}).graph
+        
+        plot_graph =  GraphPlotter(graph,
+                                   edgescolor = edgescolor,
+                                   minthickness =  minthickness,
+                                   maxthickness =  maxthickness,
+                                   thickness = thickness,
+                                   fontsize =  fontsize,
+                                   rv = rv,
+                                   ancilla = ancilla,
+                                   showPM = False)
+                                                                                                                 
+        plot_graph.graphPlot()
+        filename = f'NooN3{num_modes}'
+        
+        return plot_graph.savegraph(filename = filename)
+        
